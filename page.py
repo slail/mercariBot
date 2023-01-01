@@ -2,7 +2,6 @@ from locator import *
 from element import BasePageElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
-import time
 
 
 class SearchTextElement(BasePageElement):
@@ -35,7 +34,6 @@ class MainPage(BasePage):
             self.click_go_button()
 
     def click_go_button(self):
-        time.sleep(2)
         searchAction = ActionChains(self.driver)
         element = self.driver.find_element(
             *MainPageLocators.SEARCH_BUTTON)
@@ -46,5 +44,24 @@ class MainPage(BasePage):
 
 class SearchResultPage(BasePage):
 
+    def is_results_found(self):
+        return "No result found." not in self.driver.page_source
+
+    def applying_filters(self, sortBy):
+        filters = ActionChains(self.driver)
+        sortOptions = WebDriverWait(self.driver, 30).until(
+            lambda x: x.find_element(*SearchResultsPageLocators.SORT_OPTIONS))
+        filters.move_to_element(sortOptions).click()
+        filters.perform()
+
+        filtersSecond = ActionChains(self.driver)
+        sortObject = SearchResultsPageLocators(sortBy)
+        specificOption = WebDriverWait(self.driver, 30).until(
+            lambda x: x.find_element(*sortObject.SORT_OPTION))
+        filtersSecond.move_to_element(specificOption).click()
+        filtersSecond.perform()
+
+
+class ThirdPageResults(BasePage):
     def is_results_found(self):
         return "No result found." not in self.driver.page_source
