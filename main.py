@@ -23,6 +23,7 @@ class PythonOrgSearchTTest(unittest.TestCase):
         search_result_page.find_most_recent()
         search_result_page.wait_for_change()
         search_result_page.grabs_url()
+        search_result_page.discord_bot()
         third_result_page = page.ThirdPageResults(self.driver)
         assert third_result_page.is_results_found()
 

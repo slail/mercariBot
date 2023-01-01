@@ -2,6 +2,7 @@ from locator import *
 from element import BasePageElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
+from discord_webhook import DiscordWebhook
 import time
 
 
@@ -46,6 +47,7 @@ class MainPage(BasePage):
 class SearchResultPage(BasePage):
     itemInfo = None
     itemElement = None
+    resultUrl = None
 
     def is_results_found(self):
         return "No result found." not in self.driver.page_source
@@ -107,8 +109,21 @@ class SearchResultPage(BasePage):
             lambda x: x.find_element(*SearchResultsPageLocators.SHARE_BUTTON))  # Just a Random Element on landing page to get the right URL!
 
         get_url = self.driver.current_url
+        self.resultUrl = get_url
+
         grabActionSecond.perform()
-        print(get_url)
+
+        print(type(get_url))
+
+    def discord_bot(self):
+        webhook = DiscordWebhook(
+            url="https://discord.com/api/webhooks/1059019655857045655/SYjQqSJCndAFtTYBjd3RO1YWko4v-YIcqysUhf9VShHCVWPAPVCsKRwUNaBWPd59QhWH")
+
+        # webhook.set_content(
+        #     "Hey guys, Studiex posted a new video on YouTube! Go check it out : sunglasses: @everyone")
+
+        webhook.set_content(self.resultUrl)
+        response = webhook.execute()
 
 
 class ThirdPageResults(BasePage):
