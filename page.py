@@ -117,7 +117,7 @@ class SearchResultPage(BasePage):
 
     def discord_bot(self):
         webhook = DiscordWebhook(
-            url="https://discord.com/api/webhooks/1059019655857045655/SYjQqSJCndAFtTYBjd3RO1YWko4v-YIcqysUhf9VShHCVWPAPVCsKRwUNaBWPd59QhWH")
+            url="https://discord.com/api/webhooks/1059131886573731860/Sgi8Yhxdnbn-soPv2AtiuHBF1hNa3dkM92wGPPtUxJEKd9B6ctKH2xJD53R3vtBmjq1f")
 
         # webhook.set_content(
         #     "Hey guys, Studiex posted a new video on YouTube! Go check it out : sunglasses: @everyone")
