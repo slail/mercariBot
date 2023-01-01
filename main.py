@@ -15,16 +15,18 @@ class PythonOrgSearchTTest(unittest.TestCase):
     def test_search_python(self):
         mainPage = page.MainPage(self.driver)
         assert mainPage.is_title_matches()
-        mainPage.search_text_element = "iphone 13"
+        mainPage.search_text_element = "apple"
         mainPage.close_welcome_message()
         search_result_page = page.SearchResultPage(self.driver)
         assert search_result_page.is_results_found()
         search_result_page.applying_filters("2")
+        search_result_page.find_most_recent()
+        search_result_page.wait_for_change()
+        search_result_page.grabs_url()
         third_result_page = page.ThirdPageResults(self.driver)
         assert third_result_page.is_results_found()
 
     def tearDown(self):
-        time.sleep(10)
         self.driver.close()
 
 

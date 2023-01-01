@@ -2,6 +2,7 @@ from locator import *
 from element import BasePageElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
+import time
 
 
 class SearchTextElement(BasePageElement):
@@ -28,7 +29,7 @@ class MainPage(BasePage):
             closeAction.move_to_element(close).click()
             closeAction.perform()
 
-            print("Just closed welcome")
+            print("Just closed welcome\n")
             self.click_go_button()
         except:
             self.click_go_button()
@@ -39,15 +40,18 @@ class MainPage(BasePage):
             *MainPageLocators.SEARCH_BUTTON)
         searchAction.move_to_element(element).click()
         searchAction.perform()
-        print("just searched")
+        print("Item searched\n")
 
 
 class SearchResultPage(BasePage):
+    itemInfo = None
+    itemElement = None
 
     def is_results_found(self):
         return "No result found." not in self.driver.page_source
 
     def applying_filters(self, sortBy):
+        print("...applying filters...\n")
         filters = ActionChains(self.driver)
         sortOptions = WebDriverWait(self.driver, 30).until(
             lambda x: x.find_element(*SearchResultsPageLocators.SORT_OPTIONS))
@@ -60,6 +64,51 @@ class SearchResultPage(BasePage):
             lambda x: x.find_element(*sortObject.SORT_OPTION))
         filtersSecond.move_to_element(specificOption).click()
         filtersSecond.perform()
+        print("...filters applied...\n")
+
+    def find_most_recent(self):
+        time.sleep(5)
+        waitChain = ActionChains(self.driver)
+        mostRecentListing = WebDriverWait(self.driver, 30).until(
+            lambda x: x.find_element(*SearchResultsPageLocators.MOST_RECENT_ITEM))
+
+        self.itemInfo = mostRecentListing.text
+        self.itemElement = mostRecentListing
+
+        waitChain.perform()
+
+    def wait_for_change(self):
+        seconds = 60
+        print("...waiting for deal...\n")
+        print(
+            f"We're starting off: \n ** {self.itemInfo}** \n\nNow waiting {seconds} seconds")
+        previousRecentItem = self.itemInfo
+        i = 0
+        while previousRecentItem == self.itemInfo:
+            # Change time to refresh after how much minutes!
+            time.sleep(seconds)
+            i += 1
+            print(f"We waited 60 seconds: {i} times\n")
+            self.driver.refresh()
+            self.find_most_recent()
+
+        minutes = (60 * i) // 60
+        print(f"Our item has changed! After waiting {minutes} minutes\n")
+        print(f'{self.itemInfo}\n')
+
+    def grabs_url(self):
+        grabAction = ActionChains(self.driver)
+        grabAction.move_to_element(self.itemElement).click()
+
+        grabAction.perform()
+
+        grabActionSecond = ActionChains(self.driver)
+        shareButton = WebDriverWait(self.driver, 30).until(
+            lambda x: x.find_element(*SearchResultsPageLocators.SHARE_BUTTON))  # Just a Random Element on landing page to get the right URL!
+
+        get_url = self.driver.current_url
+        grabActionSecond.perform()
+        print(get_url)
 
 
 class ThirdPageResults(BasePage):
