@@ -15,6 +15,6 @@ class BasePageElement(object):
     def __get__(self, obj, owner):
         driver = obj.driver
         WebDriverWait(driver, 100).until(
-            lambda driver: driver.find_element(By.NAME, self.locator))
+            lambda driver: driver.find_element(By.CSS_SELECTOR, self.locator))
         element = driver.find_element(By.CSS_SELECTOR, self.locator)
-        return element.get_attribute("value")
+        return element.get_attribute("href")

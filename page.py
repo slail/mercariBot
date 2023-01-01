@@ -10,6 +10,10 @@ class SearchTextElement(BasePageElement):
     locator = 'input[type="search"]'
 
 
+class getTextElement(BasePageElement):
+    locator = 'a[class="Text__LinkText-sc-441b8d37-0-a Link__StyledAnchor-sc-c96f6437-0 Link__StyledPlainLink-sc-c96f6437-3 eSSYiT eqUXag"]'
+
+
 class BasePage(object):
     def __init__(self, driver):
         self.driver = driver
@@ -48,6 +52,7 @@ class SearchResultPage(BasePage):
     itemInfo = None
     itemElement = None
     resultUrl = None
+    get_text_element = getTextElement()
 
     def is_results_found(self):
         return "No result found." not in self.driver.page_source
@@ -69,7 +74,6 @@ class SearchResultPage(BasePage):
         print("...filters applied...\n")
 
     def find_most_recent(self):
-        time.sleep(5)
         waitChain = ActionChains(self.driver)
         mostRecentListing = WebDriverWait(self.driver, 30).until(
             lambda x: x.find_element(*SearchResultsPageLocators.MOST_RECENT_ITEM))
@@ -90,40 +94,83 @@ class SearchResultPage(BasePage):
             # Change time to refresh after how much minutes!
             time.sleep(seconds)
             i += 1
-            print(f"We waited 60 seconds: {i} times\n")
+            if i > 1:
+                prefix = "s"
+            else:
+                prefix = ""
+            print(f"We waited 60 seconds: {i} time{prefix}\n")
             self.driver.refresh()
             self.find_most_recent()
 
         minutes = (60 * i) // 60
-        print(f"Our item has changed! After waiting {minutes} minutes\n")
+        if minutes > 1:
+            prefix = "s"
+        else:
+            prefix = ""
+        print(
+            f"Our item has changed! After waiting {minutes} minute{prefix}\n")
         print(f'{self.itemInfo}\n')
 
     def grabs_url(self):
         grabAction = ActionChains(self.driver)
-        grabAction.move_to_element(self.itemElement).click()
-
-        grabAction.perform()
-
-        grabActionSecond = ActionChains(self.driver)
-        shareButton = WebDriverWait(self.driver, 30).until(
-            lambda x: x.find_element(*SearchResultsPageLocators.SHARE_BUTTON))  # Just a Random Element on landing page to get the right URL!
-
-        get_url = self.driver.current_url
-        self.resultUrl = get_url
-
-        grabActionSecond.perform()
-
-        print(type(get_url))
+        mostRecentItem = WebDriverWait(self.driver, 30).until(
+            lambda x: x.find_element(*SearchResultsPageLocators.MOST_RECENT_ITEM))
+        self.resultUrl = self.get_text_element
 
     def discord_bot(self):
         webhook = DiscordWebhook(
-            url="https://discord.com/api/webhooks/1059131886573731860/Sgi8Yhxdnbn-soPv2AtiuHBF1hNa3dkM92wGPPtUxJEKd9B6ctKH2xJD53R3vtBmjq1f")
-
-        # webhook.set_content(
-        #     "Hey guys, Studiex posted a new video on YouTube! Go check it out : sunglasses: @everyone")
+            url="")  # BETWEEN EMPTY QUOTES, ADD YOUR DISCORD WEBHOOK ##
 
         webhook.set_content(self.resultUrl)
         response = webhook.execute()
+
+    def wait_for_change_forever(self):
+
+        seconds = 60
+
+        print("...waiting for deals...\n")
+        print(
+            f"We're starting off: \n ** {self.itemInfo}** \n\nNow waiting {seconds} seconds")
+
+        new_items_found = 0
+
+        while True:
+            previousRecentItem = self.itemInfo
+            i = 0
+            while previousRecentItem == self.itemInfo:
+                time.sleep(seconds)
+                i += 1
+                if i > 1:
+                    prefix = "s"
+                else:
+                    prefix = ""
+                print(f"We waited 60 seconds: {i} time{prefix}\n")
+                self.driver.refresh()
+                self.find_most_recent()
+            minutes = (60 * i) // 60
+
+            if minutes > 1:
+                prefix = "s"
+            else:
+                prefix = ""
+            print(
+                f"Our item has changed! After waiting {minutes} minute{prefix}\n")
+            print(f'{self.itemInfo}\n')
+
+            new_items_found += 1
+            if int(str(new_items_found)[-1]) == 1:
+                suffix = "st"
+            elif int(str(new_items_found)[-1]) == 2:
+                suffix = "nd"
+            elif int(str(new_items_found)[-1]) == 3:
+                suffix = "rd"
+            else:
+                suffix = "th"
+
+            print(f"This is our {new_items_found}{suffix} found.")
+            self.grabs_url()
+            self.discord_bot()
+            self.find_most_recent()
 
 
 class ThirdPageResults(BasePage):
