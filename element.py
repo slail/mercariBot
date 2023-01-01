@@ -7,13 +7,14 @@ class BasePageElement(object):
     def __set__(self, obj, value):
         driver = obj.driver
         WebDriverWait(driver, 100).until(
-            lambda driver: driver.find_element(By.NAME, self.locator))
-        driver.find_element(By.NAME, self.locator).clear()
-        driver.find_element(By.NAME, self.locator).send_keys(value)
+            lambda driver: driver.find_element(By.CSS_SELECTOR, self.locator))
+        # Changed from By.NAME, to By.CSS_Selector!
+        driver.find_element(By.CSS_SELECTOR, self.locator).clear()
+        driver.find_element(By.CSS_SELECTOR, self.locator).send_keys(value)
 
     def __get__(self, obj, owner):
         driver = obj.driver
         WebDriverWait(driver, 100).until(
             lambda driver: driver.find_element(By.NAME, self.locator))
-        element = driver.find_element(By.NAME, self.locator)
+        element = driver.find_element(By.CSS_SELECTOR, self.locator)
         return element.get_attribute("value")

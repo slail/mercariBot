@@ -5,7 +5,10 @@ from selenium.webdriver.common.by import By
 
 # Will have all locators for the stuff on our "main" page
 class MainPageLocators(object):
-    GO_BUTTON = (By.ID, "submit")  # (How we acess, what the value is)
+    CLOSE_WELCOME_MESSAGE = (
+        By.CSS_SELECTOR, 'button[aria-label="Close Message"]')
+    SEARCH_BUTTON = (
+        By.CSS_SELECTOR, 'div[class="withSuggestedQueriesAndPopularSearchesDropdownView__DropdownWrapper-sc-c4c2ac56-4 hgOviE"]')
 
 
 class SearchResultsPageLocators(object):
