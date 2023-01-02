@@ -13,13 +13,16 @@ class PythonOrgSearchTTest(unittest.TestCase):
         self.driver.get("https://www.mercari.com/")
 
     def test_search_python(self):
+        searchItem = input("What item are you looking to buy: ")
+        sortBy = input(
+            "How would you like to sort your item by?\n(1) best match \n(2) newest first \n(3) lowest price first \n(4) highest price first \nEnter Number: ")
         mainPage = page.MainPage(self.driver)
         assert mainPage.is_title_matches()
-        mainPage.search_text_element = "apple"
+        mainPage.search_text_element = searchItem
         mainPage.close_welcome_message()
         search_result_page = page.SearchResultPage(self.driver)
         assert search_result_page.is_results_found()
-        search_result_page.applying_filters("2")
+        search_result_page.applying_filters(sortBy)
         foreverOrNot = input("Do you want to run forever or not? Y or N: ")
         if foreverOrNot == "N":
             search_result_page.find_most_recent()

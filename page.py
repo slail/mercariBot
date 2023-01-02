@@ -113,6 +113,7 @@ class SearchResultPage(BasePage):
         print(f'{self.itemInfo}\n')
 
     def grabs_url(self):
+        time.sleep(5)
         grabAction = ActionChains(self.driver)
         mostRecentItem = WebDriverWait(self.driver, 30).until(
             lambda x: x.find_element(*SearchResultsPageLocators.MOST_RECENT_ITEM))
@@ -120,10 +121,10 @@ class SearchResultPage(BasePage):
 
     def discord_bot(self):
         webhook = DiscordWebhook(
-            url="")  # BETWEEN EMPTY QUOTES, ADD YOUR DISCORD WEBHOOK ##
+            url="https://discord.com/api/webhooks/1059163196579127327/X81ruC_jh_V6eC52G46TSlumZQBzdKkRqH64r3vCNGb-3USngzXGRSK2Y7UP9zQe_5NB")  # BETWEEN EMPTY QUOTES, ADD YOUR DISCORD WEBHOOK ##
 
         webhook.set_content(self.resultUrl)
-        response = webhook.execute()
+        webhook.execute()
 
     def wait_for_change_forever(self):
         time.sleep(5)
