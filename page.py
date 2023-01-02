@@ -3,6 +3,7 @@ from element import BasePageElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from discord_webhook import DiscordWebhook
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
 
@@ -34,7 +35,7 @@ class MainPage(BasePage):
             closeAction.move_to_element(close).click()
             closeAction.perform()
 
-            print("Just closed welcome\n")
+            print("\nJust closed welcome\n")
             self.click_go_button()
         except:
             self.click_go_button()
@@ -45,7 +46,7 @@ class MainPage(BasePage):
             *MainPageLocators.SEARCH_BUTTON)
         searchAction.move_to_element(element).click()
         searchAction.perform()
-        print("Item searched\n")
+        print("\n...item searched...\n")
 
 
 class SearchResultPage(BasePage):
@@ -74,6 +75,8 @@ class SearchResultPage(BasePage):
         print("...filters applied...\n")
 
     def find_most_recent(self):
+        time.sleep(5)
+
         waitChain = ActionChains(self.driver)
         mostRecentListing = WebDriverWait(self.driver, 30).until(
             lambda x: x.find_element(*SearchResultsPageLocators.MOST_RECENT_ITEM))
@@ -83,12 +86,12 @@ class SearchResultPage(BasePage):
 
         waitChain.perform()
 
-    def wait_for_change(self):
+    def wait_for_change(self, second):
         time.sleep(5)
-        seconds = 60
+        seconds = second
         print("...waiting for deal...\n")
         print(
-            f"We're starting off: \n ** {self.itemInfo}** \n\nNow waiting {seconds} seconds")
+            f"We're starting off with: \n ** {self.itemInfo}** \n\nNow waiting {seconds} seconds")
         previousRecentItem = self.itemInfo
         i = 0
         while previousRecentItem == self.itemInfo:
@@ -99,7 +102,7 @@ class SearchResultPage(BasePage):
                 prefix = "s"
             else:
                 prefix = ""
-            print(f"We waited 60 seconds: {i} time{prefix}\n")
+            print(f"We waited {seconds} seconds: {i} time{prefix}\n")
             self.driver.refresh()
             self.find_most_recent()
 
@@ -121,24 +124,24 @@ class SearchResultPage(BasePage):
 
     def discord_bot(self):
         webhook = DiscordWebhook(
-            url="https://discord.com/api/webhooks/1059163196579127327/X81ruC_jh_V6eC52G46TSlumZQBzdKkRqH64r3vCNGb-3USngzXGRSK2Y7UP9zQe_5NB")  # BETWEEN EMPTY QUOTES, ADD YOUR DISCORD WEBHOOK ##
+            url="")  # BETWEEN EMPTY QUOTES, ADD YOUR DISCORD WEBHOOK ##
 
         webhook.set_content(self.resultUrl)
         webhook.execute()
 
-    def wait_for_change_forever(self):
+    def wait_for_change_forever(self, second):
         time.sleep(5)
-        seconds = 60
-
+        seconds = second
         print("...waiting for deals...\n")
         print(
-            f"We're starting off: \n ** {self.itemInfo}** \n\nNow waiting {seconds} seconds")
+            f"We're starting off with: \n ** {self.itemInfo}** \n")
 
         new_items_found = 0
 
         while True:
             previousRecentItem = self.itemInfo
             i = 0
+            print(f"\nNow waiting {seconds} seconds")
             while previousRecentItem == self.itemInfo:
                 time.sleep(seconds)
                 i += 1
@@ -146,7 +149,7 @@ class SearchResultPage(BasePage):
                     prefix = "s"
                 else:
                     prefix = ""
-                print(f"We waited 60 seconds: {i} time{prefix}\n")
+                print(f"We waited {seconds} seconds: {i} time{prefix}\n")
                 self.driver.refresh()
                 self.find_most_recent()
             minutes = (60 * i) // 60
