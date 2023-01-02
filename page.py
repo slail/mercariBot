@@ -124,7 +124,7 @@ class SearchResultPage(BasePage):
 
     def discord_bot(self):
         webhook = DiscordWebhook(
-            url="")  # BETWEEN EMPTY QUOTES, ADD YOUR DISCORD WEBHOOK ##
+            url="")  # !IMPORTANT: BETWEEN EMPTY QUOTES, ADD YOUR DISCORD WEBHOOK! ##
 
         webhook.set_content(self.resultUrl)
         webhook.execute()
