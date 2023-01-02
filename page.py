@@ -84,6 +84,7 @@ class SearchResultPage(BasePage):
         waitChain.perform()
 
     def wait_for_change(self):
+        time.sleep(5)
         seconds = 60
         print("...waiting for deal...\n")
         print(
@@ -125,7 +126,7 @@ class SearchResultPage(BasePage):
         response = webhook.execute()
 
     def wait_for_change_forever(self):
-
+        time.sleep(5)
         seconds = 60
 
         print("...waiting for deals...\n")

@@ -20,10 +20,16 @@ class PythonOrgSearchTTest(unittest.TestCase):
         search_result_page = page.SearchResultPage(self.driver)
         assert search_result_page.is_results_found()
         search_result_page.applying_filters("2")
-        search_result_page.find_most_recent()
-        search_result_page.grabs_url()
-        search_result_page.wait_for_change_forever()
-        search_result_page.discord_bot()
+        foreverOrNot = input("Do you want to run forever or not? Y or N: ")
+        if foreverOrNot == "N":
+            search_result_page.find_most_recent()
+            search_result_page.wait_for_change()
+            search_result_page.grabs_url()
+            search_result_page.discord_bot()
+        else:
+            search_result_page.find_most_recent()
+            search_result_page.wait_for_change_forever()
+
         third_result_page = page.ThirdPageResults(self.driver)
         assert third_result_page.is_results_found()
 
