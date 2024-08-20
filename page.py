@@ -1,5 +1,8 @@
 from locator import *
 from element import BasePageElement
+from slack_bolt import App
+from slack_bolt.adapter.socket_mode import SocketModeHandler
+from slack_sdk.errors import SlackApiError
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from discord_webhook import DiscordWebhook
@@ -21,7 +24,6 @@ class BasePage(object):
 
 
 class MainPage(BasePage):
-
     search_text_element = SearchTextElement()
 
     def is_title_matches(self):
@@ -91,7 +93,7 @@ class SearchResultPage(BasePage):
         seconds = second
         print("...waiting for deal...\n")
         print(
-            f"We're starting off with: \n ** {self.itemInfo}** \n\nNow waiting {seconds} seconds")
+            f"We're starting off with: \n ** {self.itemInfo} ** \n\nNow waiting {seconds} seconds")
         previousRecentItem = self.itemInfo
         i = 0
         while previousRecentItem == self.itemInfo:
@@ -116,18 +118,27 @@ class SearchResultPage(BasePage):
         print(f'{self.itemInfo}\n')
 
     def grabs_url(self):
-        time.sleep(5)
+        time.sleep(1)
         grabAction = ActionChains(self.driver)
         mostRecentItem = WebDriverWait(self.driver, 30).until(
             lambda x: x.find_element(*SearchResultsPageLocators.MOST_RECENT_ITEM))
-        self.resultUrl = self.get_text_element
+        href_link = mostRecentItem.get_attribute("href")
+        self.resultUrl = href_link
+        print(self.resultUrl)
 
     def discord_bot(self):
         webhook = DiscordWebhook(
             url="")  # !IMPORTANT: BETWEEN EMPTY QUOTES, ADD YOUR DISCORD WEBHOOK! ##
-
         webhook.set_content(self.resultUrl)
         webhook.execute()
+
+    def slack_bot(self):
+        app = App(token="")
+        channel_id = ""
+        try:
+            response = app.client.chat_postMessage(channel=channel_id, text=self.resultUrl)
+        except SlackApiError as e:
+            raise RuntimeError(f"Error Processing submissions: {e}")
 
     def wait_for_change_forever(self, second):
         time.sleep(5)
@@ -174,7 +185,8 @@ class SearchResultPage(BasePage):
 
             print(f"This is our {new_items_found}{suffix} found.")
             self.grabs_url()
-            self.discord_bot()
+            # self.discord_bot()
+            self.slack_bot()
             self.find_most_recent()
 
 

@@ -15,7 +15,7 @@ class SearchResultsPageLocators(object):
     SORT_OPTIONS = (By.ID, "Select sort by ")
 
     MOST_RECENT_ITEM = (
-        By.CSS_SELECTOR, 'a[class="Text__LinkText-sc-441b8d37-0-a Link__StyledAnchor-sc-c96f6437-0 Link__StyledPlainLink-sc-c96f6437-3 eSSYiT eqUXag"]')
+        By.CSS_SELECTOR, 'a[class="T3-sc-7hzl3c-a Link__StyledAnchor-sc-5892884c-0 Link__StyledPlainLink-sc-5892884c-3 hRpGAg dUfPpM"]')
 
     SHARE_BUTTON = (By.CSS_SELECTOR,
                     'button[class="BaseButton--1suxwwd jtxByY"]')

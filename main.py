@@ -22,8 +22,9 @@ class PythonOrgSearchTTest(unittest.TestCase):
         options.add_argument('--disable-gpu')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--no-sandbox')
-        self.driver = webdriver.Chrome(service=Service(
-            '/usp/Local/bin/chromedriver'), options=options)
+        options.add_argument('--disable-browser-side-navigation')
+        options.add_argument('enable-features=NetworkServiceInProcess')
+        self.driver = webdriver.Chrome(options=options)
         self.driver.get("https://www.mercari.com/")
 
     def test_search_python(self):
@@ -45,8 +46,8 @@ class PythonOrgSearchTTest(unittest.TestCase):
         if foreverOrNot.lower() == "n":
             search_result_page.find_most_recent()
             search_result_page.wait_for_change(secondsWait)
-            search_result_page.grabs_url()
-            search_result_page.discord_bot()
+            # search_result_page.grabs_url()
+            search_result_page.slack_bot()
         else:
             search_result_page.find_most_recent()
             search_result_page.wait_for_change_forever(secondsWait)
