@@ -132,63 +132,64 @@ class SearchResultPage(BasePage):
         webhook.set_content(self.resultUrl)
         webhook.execute()
 
-    def slack_bot(self):
+    def slack_bot(self, url):
         app = App(token="")
         channel_id = ""
         try:
-            response = app.client.chat_postMessage(channel=channel_id, text=self.resultUrl)
+            response = app.client.chat_postMessage(channel=channel_id, text=url)
         except SlackApiError as e:
             raise RuntimeError(f"Error Processing submissions: {e}")
 
-    def wait_for_change_forever(self, second):
-        time.sleep(5)
-        seconds = second
-        print("...waiting for deals...\n")
-        print(
-            f"We're starting off with: \n ** {self.itemInfo}** \n")
+    def wait_for_change_forever(self, seconds):
+        previous_items = []
 
-        new_items_found = 0
+        print("Starting the process...")
+        mostRecentListings = WebDriverWait(self.driver, 30).until(
+            lambda x: x.find_elements(*SearchResultsPageLocators.MOST_RECENT_ITEM)
+        )
 
+        # Extract URLs and add to previous_items
+        # item_url = item.get_attribute("href"
+
+        self.itemInfo = mostRecentListings[0].text
+        self.itemElement = mostRecentListings[0]
+        # previous_items.append(self.itemInfo)
+        print(f"First item found: {self.itemInfo}")
+
+        # Will break if say the lister deletes listing as I'm refreshing and searching for the self.itemInfo
         while True:
-            previousRecentItem = self.itemInfo
-            i = 0
-            print(f"\nNow waiting {seconds} seconds")
-            while previousRecentItem == self.itemInfo:
-                time.sleep(seconds)
-                i += 1
-                if i > 1:
-                    prefix = "s"
-                else:
-                    prefix = ""
-                print(f"We waited {seconds} seconds: {i} time{prefix}\n")
-                self.driver.refresh()
-                self.find_most_recent()
-            minutes = (60 * i) // 60
+            print(f"Waiting allotted time")
+            time.sleep(seconds)
+            print("Refreshing the page...")
+            self.driver.refresh()
+            mostRecentListings = WebDriverWait(self.driver, 30).until(
+                lambda x: x.find_elements(*SearchResultsPageLocators.MOST_RECENT_ITEM)
+            )
+            RecentListings = [item.text for item in mostRecentListings]
+            self.itemInfo_new = RecentListings[0]
 
-            if minutes > 1:
-                prefix = "s"
-            else:
-                prefix = ""
-            print(
-                f"Our item has changed! After waiting {minutes} minute{prefix}\n")
-            print(f'{self.itemInfo}\n')
+            # current_items = []
+            # for item in mostRecentListings:
+            #     current_items.append(item.text)
+            # Identify new items by comparing with the previous list
+            if self.itemInfo != self.itemInfo_new:
+                new_items = []
+                index_of_og = RecentListings.index(self.itemInfo)
+                for item in RecentListings[:index_of_og][::-1]:
+                    print(f"Added {item} to new items list.")
+                    new_items.append(item)
 
-            new_items_found += 1
-            if int(str(new_items_found)[-1]) == 1:
-                suffix = "st"
-            elif int(str(new_items_found)[-1]) == 2:
-                suffix = "nd"
-            elif int(str(new_items_found)[-1]) == 3:
-                suffix = "rd"
-            else:
-                suffix = "th"
+                print(f"New item(s) detected: {new_items}")
+                # Notify in chronological order of appearance
+                for item in new_items:
+                    print(f"Notification: {item} being sent to slack")
+                    # Assuming the item is a WebElement or you can locate it by an identifier
+                    # item_url = item.get_attribute("href")  # Get the URL from the href attribute
+                    self.slack_bot(item)  # Send the URL to Slack
+                self.itemInfo = new_items[-1]
+                new_items.clear()
 
-            print(f"This is our {new_items_found}{suffix} found.")
-            self.grabs_url()
-            # self.discord_bot()
-            self.slack_bot()
-            self.find_most_recent()
-
+            print("Waiting for the next change...\n")
 
 class ThirdPageResults(BasePage):
     def is_results_found(self):
